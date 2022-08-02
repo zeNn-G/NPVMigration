@@ -1,0 +1,11 @@
+blocks_y/78
+blocks_x/43
+blocks_z/18
+financial_simulations/100
+financial_parameters/7
+grade_simulations/100
+tonnage/3200
+unitPrice/$pg
+unitGrade/gpt
+destinations/2
+mcaf/0.1
