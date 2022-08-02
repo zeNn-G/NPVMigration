@@ -218,16 +218,12 @@ namespace Migration
             return npv;
         }
 
-        public bool inBounds(int index, int[] array)
-        {
-            return (index >= 0) && (index < array.Length);
-        }
-
         public static void readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
             string fileName = @"C:\Users\trero\Desktop\Staj\C#\Migration\Migration\texts\gradesimulation.txt";
 
             int levels_L = 0, row_L = 0, column_L = 0;
+            int i = 0;
 
             double[,,,] arr4D = new double[blocksX + 1, blocksY + 1, blocksZ + 1, financialParams + 1];
 
@@ -245,49 +241,109 @@ namespace Migration
 
                     //! DEBUG
                     //Console.WriteLine(lineArr[0] + " " + lineArr[1] + " " + lineArr[2] + " " + lineArr[3] + " " + lineArr[4] + " " + lineArr[5]);
+                    while (i < 6)
+                    {
+                        if (i == 0)
+                        {
+                            firstPos = int.Parse(lineArr[i]);
+                            if (firstPos > levels_L)
+                            {
+                                row = firstPos;
+                            }
+                        }
+                        else if (i == 1)
+                        {
+                            secondPos = int.Parse(lineArr[i]);
+                            if (secondPos > row_L)
+                            {
+                                column = secondPos;
+                            }
+                        }
+                        else if (i == 2)
+                        {
+                            thirdPos = int.Parse(lineArr[i]);
+                            if (thirdPos > column_L)
+                            {
+                                levels_L = thirdPos;
+                            }
+                        }
+                        else if (i > 2)
+                        {
+                            if (lineArr[4].Equals('-'))
+                            {
+                                arr4D[firstPos, secondPos, thirdPos, i - 3] = -1;
+                            }
+                            else
+                            {
+                                arr4D[firstPos, secondPos, thirdPos, i - 3] = double.Parse(lineArr[5]);
+                            }
 
-                    if (i == 0)
-                    {
-                        firstPos = int.Parse(lineArr[0]);
-                        if (firstPos > levels_L)
-                        {
-                            row = firstPos;
-                        }
-                    }
-                    else if (i == 1)
-                    {
-                        secondPos = int.Parse(lineArr[1]);
-                        if (secondPos > row_L)
-                        {
-                            column = secondPos;
-                        }
-                    }
-                    else if (i == 2)
-                    {
-                        thirdPos = int.Parse(lineArr[2]);
-                        if (thirdPos > column_L)
-                        {
-                            levels_L = thirdPos;
-                        }
-                    }
-                    else if (i > 2)
-                    {
-                        if (lineArr[4].Equals('-'))
-                        {
-                            arr4D[firstPos, secondPos, thirdPos, i - 3] = -1;
-                        }
-                        else
-                        {
-                            arr4D[firstPos, secondPos, thirdPos, i - 3] = double.Parse(lineArr[5]);
+                            Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
                         }
 
-                        Console.WriteLine(arr4D[firstPos, secondPos, thirdPos, i - 3]);
+                        i = i + 1;
                     }
-
-                    i = i + 1;
                 }
-
             }
+            numberOfSimulations = i;
+
+            float conversionFactorPrice_L = 1f;
+            float conversionFactorGrade_L = 1f;
+
+            #region unitGradeEq
+            if (unitGrade.Equals("%"))
+            {
+                GradeUnit = 0;
+            }
+            else if (unitGrade.Equals("ppm"))
+            {
+                GradeUnit = 1;
+            }
+            else if (unitGrade.Equals("gTon"))
+            {
+                GradeUnit = 2;
+            }
+            else if (unitGrade.Equals("kCal/kg"))
+            {
+                GradeUnit = 4;
+            }
+            #endregion
+
+            #region conversionFactorPriceEq
+            if (unitPrice.Equals("$pg"))
+            {
+                conversionFactorGrade_L = SetMineParams(1);
+            }
+            else if (unitPrice.Equals("$pkg"))
+            {
+                conversionFactorGrade_L = SetMineParams(2);
+            }
+            else if (unitPrice.Equals("$pTonnage"))
+            {
+                conversionFactorGrade_L = SetMineParams(3);
+            }
+            else if (unitPrice.Equals("$pLongTon"))
+            {
+                conversionFactorGrade_L = SetMineParams(4);
+            }
+            else if (unitPrice.Equals("$pShortTon"))
+            {
+                conversionFactorGrade_L = SetMineParams(5);
+            }
+            else if (unitPrice.Equals("$poz"))
+            {
+                conversionFactorGrade_L = SetMineParams(6);
+            }
+            else if (unitPrice.Equals("$ptroyoz"))
+            {
+                conversionFactorGrade_L = SetMineParams(7);
+            }
+            else if (unitPrice.Equals("$plb"))
+            {
+                conversionFactorGrade_L = SetMineParams(8);
+            }
+
         }
     }
+}
 }
