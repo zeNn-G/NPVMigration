@@ -113,8 +113,6 @@ namespace Migration
         public void ReadFinancial(int financialParams, int financial_sims)
         {
 
-            string dosya = @"C:\Users\fatmaunal\source\repos\staj1\staj1\texts\financial.txt";
-
         }
 
         public static void readParams(ref int blocksZ, ref int blocksX, ref int blocksY, ref int financialParams, ref int financialSims, ref int gradeSims, ref float tonnage, ref string unitPrice, ref string unitGrade, ref int noOfDestinations)
