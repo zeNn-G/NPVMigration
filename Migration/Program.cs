@@ -218,7 +218,7 @@ namespace Migration
             return npv;
         }
 
-        public static void readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
+        public static float readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
             string fileName = @"C:\Users\trero\Desktop\Staj\C#\Migration\Migration\texts\gradesimulation.txt";
 
@@ -343,6 +343,13 @@ namespace Migration
                 conversionFactorGrade_L = SetMineParams(8);
             }
 
+            row = row_L;
+            levels = levels_L;
+            column = column_L;
+            conversionFactorGrade = conversionFactorGrade_L;
+            conversionFactorPrice = conversionFactorGrade_L;
+
+            return arr4D;
         }
     }
 }
