@@ -36,7 +36,7 @@ namespace Migration
 
 
             int blocks_z = 0, blocks_x = 0, blocks_y = 0, financial_simulations = 0, financial_parameters = 0, grade_simulations = 0, noOfDestinations = 0;
-            float[] tonnage = Array.Empty<float>();
+            float[] tonnage = new float[2];
 
             string unitPrice = String.Empty;
             string unitGrade = String.Empty;
@@ -128,7 +128,7 @@ namespace Migration
             string fileName = $"{asmPath}\\texts\\financial.txt";
             StreamReader sr = new StreamReader(fileName);
 
-            float[,] financial = new float[financialParams, financial_sims];
+            float[,] financial = new float[financial_sims, financialParams];
 
             string lines = string.Empty;
             int w = 0;
@@ -139,7 +139,7 @@ namespace Migration
                 for (int i = 0; i < rows.Length; i++)
                 {
                     financial[w, i] = float.Parse(rows[i]);
-                    Console.Write(financial[w, i] = int.Parse(rows[i]));
+                    //Console.Write(financial[w, i] = int.Parse(rows[i]));
                 }
 
                 w = w + 1;
@@ -242,7 +242,7 @@ namespace Migration
             }
 
             //! DEBUG
-            //Console.WriteLine("y:{0} x:{1} z:{2}\nFinancial_Sim:{3}\nFinancial_Params:{4}\nGrade_Sim:{5}\nTonnage:{6}\nUnitPrice:{7}\nUnitGrade:{8}\nNoOfDestinations:{9}", blocksY, blocksX, blocksZ, financialSims, financialParams, gradeSims, tonnage, unitPrice, unitGrade, noOfDestinations);
+            Console.WriteLine("y:{0} x:{1} z:{2}\nFinancial_Sim:{3}\nFinancial_Params:{4}\nGrade_Sim:{5}\nTonnage:{6}\nUnitPrice:{7}\nUnitGrade:{8}\nNoOfDestinations:{9}", blocksY, blocksX, blocksZ, financialSims, financialParams, gradeSims, tonnage[0], unitPrice, unitGrade, noOfDestinations);
         }
         public static double[,,,] readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
@@ -379,7 +379,7 @@ namespace Migration
 
             return arr4D;
         }
-        public double calculateNpv(double[,,,] data, float[,] financial, int z, int x, int y, int k, int w, ref float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int noOfDestinations)
+        public static double calculateNpv(double[,,,] data, float[,] financial, int z, int x, int y, int k, int w, ref float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int noOfDestinations)
         {
             float npv = 0f;
             //float[,] financial = new float[financialParams, financial_sims];
@@ -430,13 +430,13 @@ namespace Migration
 
             return npv;
         }
-        public void calculateRisk(int levels, int row, int column, double[,,,] data, float[,] financial, float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int financialSims, int numberOfSims, int noOfDestinations)
+        public static void calculateRisk(int levels, int row, int column, double[,,,] data, float[,] financial, float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int financialSims, int numberOfSims, int noOfDestinations)
         {
             Console.WriteLine("======! Started Risk Calculation !======");
             string fileName = $"{asmPath}\\texts\\output.txt";
 
             int x, y, z, k;
-            double npv = 0f;
+            double npv = 0;
 
             int w;
 
