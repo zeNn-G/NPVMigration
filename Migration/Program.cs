@@ -43,10 +43,14 @@ namespace Migration
 
             readParams(ref blocks_z, ref blocks_x, ref blocks_y, ref financial_parameters, ref financial_simulations, ref grade_simulations, ref tonnage, ref unitPrice, ref unitGrade, ref noOfDestinations);
 
+            float[,] financial = ReadFinancial(financial_parameters, grade_simulations);
+
+
             int row = 0, column = 0, levels = 0, numberOfSimulations = 0;
             float conversionFactorPrice = 0.0f, conversionFactorGrade = 0.0f;
 
-            readGradeSimulations(blocks_x, blocks_y, blocks_z, financial_parameters, financial_simulations, grade_simulations, unitPrice, unitGrade, ref row, ref column, ref levels, ref conversionFactorPrice, ref conversionFactorGrade, ref numberOfSimulations);
+            double[,,,] data = readGradeSimulations(blocks_x, blocks_y, blocks_z, financial_parameters, financial_simulations, grade_simulations, unitPrice, unitGrade, ref row, ref column, ref levels, ref conversionFactorPrice, ref conversionFactorGrade, ref numberOfSimulations);
+
         }
         public static float TranslateUnit(float scale)
         {
@@ -72,7 +76,6 @@ namespace Migration
 
             return GradeUnitScale;
         }
-
         public static float SetMineParams(int saleUnit)
         {
             float UnitPriceCalc = 0;
@@ -118,12 +121,31 @@ namespace Migration
 
             return UnitPriceCalc;
         }
-
-        public void ReadFinancial(int financialParams, int financial_sims)
+        public static float[,] ReadFinancial(int financialParams, int financial_sims)
         {
 
-        }
+            string fileName = $"{asmPath}\\texts\\financial.txt";
+            StreamReader sr = new StreamReader(fileName);
 
+            float[,] financial = new float[financialParams, financial_sims];
+
+            string lines = string.Empty;
+            int w = 0;
+
+            while (!string.IsNullOrEmpty(lines = sr.ReadLine()))
+            {
+                string[] rows = lines.Split(',');
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    financial[w, i] = float.Parse(rows[i]);
+                    Console.Write(financial[w, i] = int.Parse(rows[i]));
+                }
+
+                w = w + 1;
+            }
+
+            return financial;
+        }
         public static void readParams(ref int blocksZ, ref int blocksX, ref int blocksY, ref int financialParams, ref int financialSims, ref int gradeSims, ref float tonnage, ref string unitPrice, ref string unitGrade, ref int noOfDestinations)
         {
             string fileName = $"{asmPath}\\texts\\parameter.txt";
@@ -220,14 +242,6 @@ namespace Migration
             //! DEBUG
             //Console.WriteLine("y:{0} x:{1} z:{2}\nFinancial_Sim:{3}\nFinancial_Params:{4}\nGrade_Sim:{5}\nTonnage:{6}\nUnitPrice:{7}\nUnitGrade:{8}\nNoOfDestinations:{9}", blocksY, blocksX, blocksZ, financialSims, financialParams, gradeSims, tonnage, unitPrice, unitGrade, noOfDestinations);
         }
-
-        public double calculateNpv()
-        {
-            float npv = 0f;
-
-            return npv;
-        }
-
         public static double[,,,] readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
             string fileName = $"{asmPath}\\texts\\gradesimulation.txt";
@@ -285,12 +299,11 @@ namespace Migration
                             }
                             else
                             {
-
                                 _ = double.TryParse(lineArr[x], out value);
                                 arr4D[firstPos, secondPos, thirdPos, i - 3] = value;
-
                             }
-                            Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
+                            //! DEBUG
+                            //Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
                         }
 
                         i = i + 1;
@@ -324,45 +337,53 @@ namespace Migration
             #region conversionFactorPriceEq
             if (unitPrice.Equals("$pg"))
             {
-                conversionFactorGrade_L = SetMineParams(1);
+                conversionFactorPrice_L = SetMineParams(1);
             }
             else if (unitPrice.Equals("$pkg"))
             {
-                conversionFactorGrade_L = SetMineParams(2);
+                conversionFactorPrice_L = SetMineParams(2);
             }
             else if (unitPrice.Equals("$pTonnage"))
             {
-                conversionFactorGrade_L = SetMineParams(3);
+                conversionFactorPrice_L = SetMineParams(3);
             }
             else if (unitPrice.Equals("$pLongTon"))
             {
-                conversionFactorGrade_L = SetMineParams(4);
+                conversionFactorPrice_L = SetMineParams(4);
             }
             else if (unitPrice.Equals("$pShortTon"))
             {
-                conversionFactorGrade_L = SetMineParams(5);
+                conversionFactorPrice_L = SetMineParams(5);
             }
             else if (unitPrice.Equals("$poz"))
             {
-                conversionFactorGrade_L = SetMineParams(6);
+                conversionFactorPrice_L = SetMineParams(6);
             }
             else if (unitPrice.Equals("$ptroyoz"))
             {
-                conversionFactorGrade_L = SetMineParams(7);
+                conversionFactorPrice_L = SetMineParams(7);
             }
             else if (unitPrice.Equals("$plb"))
             {
-                conversionFactorGrade_L = SetMineParams(8);
+                conversionFactorPrice_L = SetMineParams(8);
             }
 
             row = row_L;
             levels = levels_L;
             column = column_L;
             conversionFactorGrade = conversionFactorGrade_L;
-            conversionFactorPrice = conversionFactorGrade_L;
+            conversionFactorPrice = conversionFactorPrice_L;
             #endregion
 
             return arr4D;
         }
+        public double calculateNpv()
+        {
+            float npv = 0f;
+
+            return npv;
+        }
+
+
     }
 }
