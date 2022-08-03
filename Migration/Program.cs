@@ -36,7 +36,7 @@ namespace Migration
 
 
             int blocks_z = 0, blocks_x = 0, blocks_y = 0, financial_simulations = 0, financial_parameters = 0, grade_simulations = 0, noOfDestinations = 0;
-            float tonnage = 0f;
+            float[] tonnage = Array.Empty<float>();
 
             string unitPrice = String.Empty;
             string unitGrade = String.Empty;
@@ -51,6 +51,7 @@ namespace Migration
 
             double[,,,] data = readGradeSimulations(blocks_x, blocks_y, blocks_z, financial_parameters, financial_simulations, grade_simulations, unitPrice, unitGrade, ref row, ref column, ref levels, ref conversionFactorPrice, ref conversionFactorGrade, ref numberOfSimulations);
 
+            calculateRisk(levels, row, column, data, financial, tonnage, conversionFactorPrice, conversionFactorGrade, financial_simulations, numberOfSimulations, noOfDestinations);
         }
         public static float TranslateUnit(float scale)
         {
@@ -146,7 +147,7 @@ namespace Migration
 
             return financial;
         }
-        public static void readParams(ref int blocksZ, ref int blocksX, ref int blocksY, ref int financialParams, ref int financialSims, ref int gradeSims, ref float tonnage, ref string unitPrice, ref string unitGrade, ref int noOfDestinations)
+        public static void readParams(ref int blocksZ, ref int blocksX, ref int blocksY, ref int financialParams, ref int financialSims, ref int gradeSims, ref float[] tonnage, ref string unitPrice, ref string unitGrade, ref int noOfDestinations)
         {
             string fileName = $"{asmPath}\\texts\\parameter.txt";
 
@@ -197,7 +198,8 @@ namespace Migration
                 {
                     _ = int.TryParse(kvp.Value, out int valueInt);
 
-                    tonnage = valueInt;
+                    tonnage[0] = valueInt;
+                    tonnage[1] = valueInt;
                 }
                 else if (kvp.Key.Equals("financial_simulations"))
                 {
@@ -377,13 +379,89 @@ namespace Migration
 
             return arr4D;
         }
-        public double calculateNpv()
+        public double calculateNpv(double[,,,] data, float[,] financial, int z, int x, int y, int k, int w, ref float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int noOfDestinations)
         {
             float npv = 0f;
+            //float[,] financial = new float[financialParams, financial_sims];
+            // double[,,,] arr4D = new double[blocksX + 1, blocksY + 1, blocksZ + 1, financialParams + 1];
+            int period = (int)data[x, y, z, 0];
+
+            //data = int.TryParse(data,out period);
+            int destination = (int)data[x, y, z, 1];
+            int dest = destination;
+            destination = destination + 1; //to adjust destinations to start from 11
+            float price = financial[w, 0];
+            float recovery = financial[w, (destination - 2) * 2 + 2];
+            float processingCost = financial[w, (destination - 2) * 2 + 1];
+            int start = 0;
+            start = noOfDestinations * 2 + 2;
+            float miningCost = financial[w, start + dest];
+            double grade = data[x, y, z, k];
+            float discountRate = financial[w, noOfDestinations * 2 + 1];
+
+            double mCost = miningCost + (double)(z - 1) * mcaf;
+
+
+            if (grade == -100)
+            {//air block
+                npv = (float)0.0;
+            }
+            else if (dest == -1)
+            {  //not extracted
+                npv = (float)0.0;
+            }
+            else if (destination == 1)
+            {   //waste
+                npv = -(float)mCost * tonnage[0];   //mining cost * tonnage
+                Math.Pow((1.0 + discountRate / 100.0), period); //discount rate
+            }
+            else
+            {
+                npv = (float)((float)((price * recovery * tonnage[1] * grade * conversionFactorPrice * conversionFactorGrade / 100.0) - (processingCost + mCost) * tonnage[0]) / Math.Pow((1.0 + discountRate / 100.0), period));//Di�er Maliyetlerde eklenmeli.
+            }
+            /*
+            if (data[z][x][y][1]==2) {
+                npv= (financial[w][0]*financial[w][2]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][1]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
+            }
+            if (data[z][x][y][1]==3) {
+                npv= (financial[w][0]*financial[w][4]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][3]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
+            }*/
+
 
             return npv;
         }
+        public void calculateRisk(int levels, int row, int column, double[,,,] data, float[,] financial, float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int financialSims, int numberOfSims, int noOfDestinations)
+        {
+            Console.WriteLine("======! Started Risk Calculation !======");
+            string fileName = $"{asmPath}\\texts\\output.txt";
 
+            int x, y, z, k;
+            double npv = 0f;
+
+            int w;
+
+            using (FileStream fileStream = File.Create(fileName))
+            {
+                for (w = 0; w < financialSims; w++)
+                {
+                    for (k = 2; k < (numberOfSims - 3); k++)
+                    {
+                        npv = 0f;
+                        for (z = 0; z <= levels; z++)
+                        {
+                            for (y = 1; y <= column; y++)
+                            {
+                                for (x = 1; x <= row; x++)
+                                {
+                                    npv += calculateNpv(data, financial, z, x, y, k, w, ref tonnage, conversionFactorPrice, conversionFactorGrade, noOfDestinations);
+                                }
+                            }
+                        }
+                        Console.WriteLine(npv);
+                    }
+                }
+            }
+        }
 
     }
 }
