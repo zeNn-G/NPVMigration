@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Linq;
+using System.Reflection;
 
 namespace Migration
 {
@@ -23,9 +26,15 @@ namespace Migration
         public static float Percentage = 10000;
         public static int GradeUnit;
 
+        public static CultureInfo ci = new CultureInfo("en-US");
 
+        public static string asmPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         static void Main(string[] args)
         {
+            Thread.CurrentThread.CurrentCulture = ci;
+            // Thread.CurrentThread.CurrentCulture.NumberFormat = ci.NumberFormat;
+
+
             int blocks_z = 0, blocks_x = 0, blocks_y = 0, financial_simulations = 0, financial_parameters = 0, grade_simulations = 0, noOfDestinations = 0;
             float tonnage = 0f;
 
@@ -39,7 +48,7 @@ namespace Migration
 
             readGradeSimulations(blocks_x, blocks_y, blocks_z, financial_parameters, financial_simulations, grade_simulations, unitPrice, unitGrade, ref row, ref column, ref levels, ref conversionFactorPrice, ref conversionFactorGrade, ref numberOfSimulations);
         }
-        public float TranslateUnit(float scale)
+        public static float TranslateUnit(float scale)
         {
             float GradeUnitScale;
 
@@ -64,7 +73,7 @@ namespace Migration
             return GradeUnitScale;
         }
 
-        public float SetMineParams(int saleUnit)
+        public static float SetMineParams(int saleUnit)
         {
             float UnitPriceCalc = 0;
 
@@ -117,7 +126,8 @@ namespace Migration
 
         public static void readParams(ref int blocksZ, ref int blocksX, ref int blocksY, ref int financialParams, ref int financialSims, ref int gradeSims, ref float tonnage, ref string unitPrice, ref string unitGrade, ref int noOfDestinations)
         {
-            string fileName = @"C:\Users\trero\Desktop\Staj\C#\Migration\Migration\texts\parameter.txt";
+            string fileName = $"{asmPath}\\texts\\parameter.txt";
+
 
             Dictionary<string, string> paramValueDic = new Dictionary<string, string>(); //! Dictionary for Param - Value
 
@@ -218,12 +228,11 @@ namespace Migration
             return npv;
         }
 
-        public static float readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
+        public static double[,,,] readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
-            string fileName = @"C:\Users\trero\Desktop\Staj\C#\Migration\Migration\texts\gradesimulation.txt";
+            string fileName = $"{asmPath}\\texts\\gradesimulation.txt";
 
             int levels_L = 0, row_L = 0, column_L = 0;
-            int i = 0;
 
             double[,,,] arr4D = new double[blocksX + 1, blocksY + 1, blocksZ + 1, financialParams + 1];
 
@@ -237,15 +246,16 @@ namespace Migration
                     string line = string.Empty;
                     line = streamReader.ReadLine();
                     string[] lineArr = line.Split(',');
+                    double value = 0;
 
 
                     //! DEBUG
                     //Console.WriteLine(lineArr[0] + " " + lineArr[1] + " " + lineArr[2] + " " + lineArr[3] + " " + lineArr[4] + " " + lineArr[5]);
-                    while (i < 6)
+                    for (int x = 0; x < lineArr.Length; x++)
                     {
                         if (i == 0)
                         {
-                            firstPos = int.Parse(lineArr[i]);
+                            firstPos = int.Parse(lineArr[x]);
                             if (firstPos > levels_L)
                             {
                                 row = firstPos;
@@ -253,7 +263,7 @@ namespace Migration
                         }
                         else if (i == 1)
                         {
-                            secondPos = int.Parse(lineArr[i]);
+                            secondPos = int.Parse(lineArr[x]);
                             if (secondPos > row_L)
                             {
                                 column = secondPos;
@@ -261,7 +271,7 @@ namespace Migration
                         }
                         else if (i == 2)
                         {
-                            thirdPos = int.Parse(lineArr[i]);
+                            thirdPos = int.Parse(lineArr[x]);
                             if (thirdPos > column_L)
                             {
                                 levels_L = thirdPos;
@@ -275,17 +285,19 @@ namespace Migration
                             }
                             else
                             {
-                                arr4D[firstPos, secondPos, thirdPos, i - 3] = double.Parse(lineArr[5]);
-                            }
 
+                                _ = double.TryParse(lineArr[x], out value);
+                                arr4D[firstPos, secondPos, thirdPos, i - 3] = value;
+
+                            }
                             Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
                         }
 
                         i = i + 1;
                     }
+                    numberOfSimulations = i;
                 }
             }
-            numberOfSimulations = i;
 
             float conversionFactorPrice_L = 1f;
             float conversionFactorGrade_L = 1f;
@@ -348,9 +360,9 @@ namespace Migration
             column = column_L;
             conversionFactorGrade = conversionFactorGrade_L;
             conversionFactorPrice = conversionFactorGrade_L;
+            #endregion
 
             return arr4D;
         }
     }
-}
 }
