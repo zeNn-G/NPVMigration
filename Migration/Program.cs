@@ -52,6 +52,7 @@ namespace Migration
             double[,,,] data = readGradeSimulations(blocks_x, blocks_y, blocks_z, financial_parameters, financial_simulations, grade_simulations, unitPrice, unitGrade, ref row, ref column, ref levels, ref conversionFactorPrice, ref conversionFactorGrade, ref numberOfSimulations);
 
             calculateRisk(levels, row, column, data, financial, tonnage, conversionFactorPrice, conversionFactorGrade, financial_simulations, numberOfSimulations, noOfDestinations);
+
         }
         public static float TranslateUnit(float scale)
         {
@@ -126,24 +127,44 @@ namespace Migration
         {
 
             string fileName = $"{asmPath}\\texts\\financial.txt";
-            StreamReader sr = new StreamReader(fileName);
 
             float[,] financial = new float[financial_sims, financialParams];
 
-            string lines = string.Empty;
             int w = 0;
 
-            while (!string.IsNullOrEmpty(lines = sr.ReadLine()))
+            using (StreamReader streamReader = new StreamReader(fileName))
             {
-                string[] rows = lines.Split(',');
-                for (int i = 0; i < rows.Length; i++)
+                while (streamReader.Peek() >= 0)
                 {
-                    financial[w, i] = float.Parse(rows[i]);
-                    //Console.Write(financial[w, i] = int.Parse(rows[i]));
-                }
+                    string line = string.Empty;
+                    string[] lineArr;
 
-                w = w + 1;
+                    line = streamReader.ReadLine();
+                    lineArr = line.Split(',');
+
+                    for (int i = 0; i < lineArr.Length; i++)
+                    {
+                        financial[w, i] = float.Parse(lineArr[i]);
+                        Console.WriteLine(financial[w, i] = float.Parse(lineArr[i]));
+                    }
+                    w = w + 1;
+                }
             }
+
+            //string lines = string.Empty;
+            //int w = 0;
+
+            //while (!string.IsNullOrEmpty(lines = sr.ReadLine()))
+            //{
+            //    string[] rows = lines.Split(',');
+            //    for (int i = 0; i < rows.Length; i++)
+            //    {
+            //        financial[w, i] = float.Parse(rows[i]);
+            //        //Console.Write(financial[w, i] = int.Parse(rows[i]));
+            //    }
+
+            //    w = w + 1;
+            //}
 
             return financial;
         }
@@ -274,7 +295,7 @@ namespace Migration
                             firstPos = int.Parse(lineArr[x]);
                             if (firstPos > levels_L)
                             {
-                                row = firstPos;
+                                row_L = firstPos;
                             }
                         }
                         else if (i == 1)
@@ -282,7 +303,7 @@ namespace Migration
                             secondPos = int.Parse(lineArr[x]);
                             if (secondPos > row_L)
                             {
-                                column = secondPos;
+                                column_L = secondPos;
                             }
                         }
                         else if (i == 2)
@@ -392,6 +413,7 @@ namespace Migration
             destination = destination + 1; //to adjust destinations to start from 11
             float price = financial[w, 0];
             float recovery = financial[w, (destination - 2) * 2 + 2];
+            // int exp = ((destination - 2) * 2 + 1);
             float processingCost = financial[w, (destination - 2) * 2 + 1];
             int start = 0;
             start = noOfDestinations * 2 + 2;
@@ -404,11 +426,11 @@ namespace Migration
 
             if (grade == -100)
             {//air block
-                npv = (float)0.0;
+                npv = 0;
             }
             else if (dest == -1)
             {  //not extracted
-                npv = (float)0.0;
+                npv = 0;
             }
             else if (destination == 1)
             {   //waste
@@ -426,8 +448,6 @@ namespace Migration
             if (data[z][x][y][1]==3) {
                 npv= (financial[w][0]*financial[w][4]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][3]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
             }*/
-
-
             return npv;
         }
         public static void calculateRisk(int levels, int row, int column, double[,,,] data, float[,] financial, float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int financialSims, int numberOfSims, int noOfDestinations)
@@ -447,7 +467,7 @@ namespace Migration
                     for (k = 2; k < (numberOfSims - 3); k++)
                     {
                         npv = 0f;
-                        for (z = 0; z <= levels; z++)
+                        for (z = 1; z <= levels; z++)
                         {
                             for (y = 1; y <= column; y++)
                             {
