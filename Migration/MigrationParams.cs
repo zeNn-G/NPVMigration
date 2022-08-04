@@ -9,19 +9,19 @@ namespace Migration
     internal class MigrationParams
     {
         //! CONST PROPERTIES
-        public static float Gram = 1;
-        public static float Kilogram = 1000;
-        public static float MetricTon = 1000000;
-        public static float LongTon = 1016000;
+        public float Gram = 1;
+        public float Kilogram = 1000;
+        public float MetricTon = 1000000;
+        public float LongTon = 1016000;
 
-        public static float ShortTon = 907187;
-        public static float Oz = 28.350f; //! /1000
-        public static float TOz = 31.103f; //! /1000
-        public static float Pound = 453.592f;//! /1000
+        public float ShortTon = 907187;
+        public float Oz = 28.350f; //! /1000
+        public float TOz = 31.103f; //! /1000
+        public float Pound = 453.592f;//! /1000
 
-        public static float PPB = 0.001f; //! gram/ton
-        public static float PPM = 1; //! gram/ton
-        public static float Percentage = 10000;
+        public float PPB = 0.001f; //! gram/ton
+        public float PPM = 1; //! gram/ton
+        public float Percentage = 10000;
 
         //! PROPERTIES
         public int blocks_z;

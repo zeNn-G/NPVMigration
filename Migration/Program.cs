@@ -27,6 +27,11 @@ namespace Migration
             MasterMigration master = new MasterMigration(mp);
 
             master.ReadParams();
+            master.ReadFinancial();
+            master.ReadGradeSimulations();
+
+
+
 
 
             //int blocks_z = 0, blocks_x = 0, blocks_y = 0, financial_simulations = 0, financial_parameters = 0, grade_simulations = 0, noOfDestinations = 0;
@@ -34,8 +39,6 @@ namespace Migration
 
             //string unitPrice = String.Empty;
             // unitGrade = String.Empty;
-
-            //(ref blocks_z, ref blocks_x, ref blocks_y, ref financial_parameters, ref financial_simulations, ref grade_simulations, ref tonnage, ref unitPrice, ref unitGrade, ref noOfDestinations);
 
             //[,] financial = ReadFinancial(financial_parameters, grade_simulations);
 
@@ -47,208 +50,10 @@ namespace Migration
 
             //calculateRisk(levels, row, column, data, financial, tonnage, conversionFactorPrice, conversionFactorGrade, financial_simulations, numberOfSimulations, noOfDestinations);
 
+            /*
         }
-        public static float TranslateUnit(float scale)
-        {
-            float GradeUnitScale;
-
-            if (GradeUnit == 0)
-                GradeUnitScale = Percentage * scale;
-
-            else if (GradeUnit == 1)
-                GradeUnitScale = Gram * scale;
-
-            else if (GradeUnit == 2)
-                GradeUnitScale = PPM * scale;
-
-            else if (GradeUnit == 3)
-                GradeUnitScale = PPB * scale;
-
-            else if (GradeUnit == 4)
-                GradeUnitScale = scale * MetricTon;
-
-            else
-                GradeUnitScale = 1000 * scale;
-
-            return GradeUnitScale;
-        }
-        public static float SetMineParams(int saleUnit)
-        {
-            float UnitPriceCalc = 0;
-
-            switch (saleUnit)
-            {
-                case 1:
-                    UnitPriceCalc = TranslateUnit(Gram);
-                    break;
-
-                case 2:
-                    UnitPriceCalc = TranslateUnit(1 / Kilogram);
-                    break;
-
-                case 3:
-                    UnitPriceCalc = TranslateUnit(1 / MetricTon);
-                    break;
-
-                case 4:
-                    UnitPriceCalc = TranslateUnit(1 / LongTon);
-                    break;
-
-                case 5:
-                    UnitPriceCalc = TranslateUnit(1 / ShortTon);
-                    break;
-
-                case 6:
-                    UnitPriceCalc = TranslateUnit(1 / Oz);
-                    break;
-
-                case 7:
-                    UnitPriceCalc = TranslateUnit(1 / TOz);
-                    break;
-
-                case 8:
-                    UnitPriceCalc = TranslateUnit(1 / Pound);
-                    break;
-
-                default:
-                    UnitPriceCalc = TranslateUnit(1);
-                    break;
-            }
-
-            return UnitPriceCalc;
-        }
-        public static float[,] ReadFinancial(int financialParams, int financial_sims)
-        {
-            //! Reads the financial.txt and splits data into pieces and relates them with the financial_parameters and financial_simulations variables and returns the related 2dArray
-
-            string fileName = $"{asmPath}\\texts\\financial.txt";
-
-            float[,] financial = new float[financial_sims, financialParams];
-
-            int w = 0;
-
-            //! Reads the file line by line
-            using (StreamReader streamReader = new StreamReader(fileName))
-            {
-                while (streamReader.Peek() >= 0)
-                {
-                    string line = string.Empty;
-                    string[] lineArr;
-
-                    line = streamReader.ReadLine();
-                    lineArr = line.Split(',');
-
-                    for (int i = 0; i < lineArr.Length; i++)
-                    {
-                        financial[w, i] = float.Parse(lineArr[i]);
-
-                        //! DEBUG
-                        //Console.WriteLine(financial[w, i] = float.Parse(lineArr[i]));
-                    }
-                    w = w + 1;
-                }
-            }
-
-            return financial;
-        }
-        public static void readParams(ref int blocksZ, ref int blocksX, ref int blocksY, ref int financialParams, ref int financialSims, ref int gradeSims, ref float[] tonnage, ref string unitPrice, ref string unitGrade, ref int noOfDestinations)
-        {
-            string fileName = $"{asmPath}\\texts\\parameter.txt";
-
-            //! Dictionary for Param - Value
-            Dictionary<string, string> paramValueDic = new Dictionary<string, string>();
-
-            using (StreamReader streamReader = new StreamReader(fileName))
-            {
-                //! Reads the file line by line
-                while (streamReader.Peek() >= 0)
-                {
-                    string line = string.Empty;
-                    string[] lineArr;
-
-                    line = streamReader.ReadLine();
-
-                    //! Splits the value Param / Value --- For Example: blocks_z / 18
-                    lineArr = line.Split('/');
-
-                    paramValueDic.Add(lineArr[0], lineArr[1]);
-
-                }
-            }
-            //! Traverses the dictionary and compares the Key and asigns the value to proper Key
-            foreach (KeyValuePair<string, string> kvp in paramValueDic)
-            {
-                //! DEBUG
-                //Console.WriteLine("Param is {0}, value is {1}", kvp.Key, kvp.Value);
-
-                if (kvp.Key.Equals("blocks_x"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    blocksX = valueInt;
-                }
-                else if (kvp.Key.Equals("blocks_z"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    blocksZ = valueInt;
-                }
-                else if (kvp.Key.Equals("blocks_y"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    blocksY = valueInt;
-                }
-                else if (kvp.Key.Equals("tonnage"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    tonnage[0] = valueInt;
-                    tonnage[1] = valueInt;
-                }
-                else if (kvp.Key.Equals("financial_simulations"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    financialSims = valueInt;
-                }
-                else if (kvp.Key.Equals("financial_parameters"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    financialParams = valueInt;
-                }
-                else if (kvp.Key.Equals("grade_simulations"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    gradeSims = valueInt;
-                }
-                else if (kvp.Key.Equals("unitPrice"))
-                {
-                    unitPrice = kvp.Value;
-                }
-                else if (kvp.Key.Equals("unitGrade"))
-                {
-                    unitGrade = kvp.Value;
-                }
-                else if (kvp.Key.Equals("destinations"))
-                {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
-
-                    noOfDestinations = valueInt;
-                }
-                else if (kvp.Key.Equals("mcaf"))
-                {
-                    _ = float.TryParse(kvp.Value, out float valueFloat);
-
-                    mcaf = valueFloat;
-                }
-            }
-
-            //! DEBUG
-            //Console.WriteLine("y:{0} x:{1} z:{2}\nFinancial_Sim:{3}\nFinancial_Params:{4}\nGrade_Sim:{5}\nTonnage:{6}\nUnitPrice:{7}\nUnitGrade:{8}\nNoOfDestinations:{9}", blocksY, blocksX, blocksZ, financialSims, financialParams, gradeSims, tonnage[0], unitPrice, unitGrade, noOfDestinations);
-        }
+        
+     
         public static double[,,,] readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
             string fileName = $"{asmPath}\\texts\\gradesimulation.txt";
@@ -448,14 +253,14 @@ namespace Migration
             {
                 npv = (float)((float)((price * recovery * tonnage[1] * grade * conversionFactorPrice * conversionFactorGrade / 100.0) - (processingCost + mCost) * tonnage[0]) / Math.Pow((1.0 + discountRate / 100.0), period));//Di�er Maliyetlerde eklenmeli.
             }
-            /*
-            if (data[z][x][y][1]==2) {
-                npv= (financial[w][0]*financial[w][2]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][1]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
+            
+           // if (data[z][x][y][1]==2) {
+               // npv= (financial[w][0]*financial[w][2]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][1]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
             }
-            if (data[z][x][y][1]==3) {
-                npv= (financial[w][0]*financial[w][4]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][3]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
-            }*/
-            return npv;
+           // if (data[z][x][y][1]==3) {
+               // npv= (financial[w][0]*financial[w][4]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][3]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
+           // }
+           // return npv;
         }
         public static void calculateRisk(int levels, int row, int column, double[,,,] data, float[,] financial, float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int financialSims, int numberOfSims, int noOfDestinations)
         {
@@ -489,6 +294,7 @@ namespace Migration
                 }
             }
         }
-
+        */
+        }
     }
 }
