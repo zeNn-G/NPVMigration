@@ -145,7 +145,7 @@ namespace Migration
                     for (int i = 0; i < lineArr.Length; i++)
                     {
                         financial[w, i] = float.Parse(lineArr[i]);
-                        Console.WriteLine(financial[w, i] = float.Parse(lineArr[i]));
+                        //Console.WriteLine(financial[w, i] = float.Parse(lineArr[i]));
                     }
                     w = w + 1;
                 }
@@ -248,7 +248,7 @@ namespace Migration
                 {
                     unitGrade = kvp.Value;
                 }
-                else if (kvp.Key.Equals("oredestinations"))
+                else if (kvp.Key.Equals("destinations"))
                 {
                     _ = int.TryParse(kvp.Value, out int valueInt);
 
@@ -256,9 +256,9 @@ namespace Migration
                 }
                 else if (kvp.Key.Equals("mcaf"))
                 {
-                    _ = int.TryParse(kvp.Value, out int valueInt);
+                    _ = float.TryParse(kvp.Value, out float floatFl);
 
-                    mcaf = valueInt;
+                    mcaf = floatFl;
                 }
             }
 
@@ -267,7 +267,9 @@ namespace Migration
         }
         public static double[,,,] readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
-            string fileName = $"{asmPath}\\texts\\gradesimulation.txt";
+            //string fileName = $"{asmPath}\\texts\\gradesimulation.txt";
+            string fileName = @"C:\Users\trero\Desktop\Staj\C#\Migration\Migration\texts\gradesimulation.txt";
+
 
             int levels_L = 0, row_L = 0, column_L = 0;
 
@@ -316,9 +318,9 @@ namespace Migration
                         }
                         else if (i > 2)
                         {
-                            if (lineArr[4].Equals('-'))
+                            if (lineArr[4].Equals("-"))
                             {
-                                arr4D[firstPos, secondPos, thirdPos, i - 3] = -1;
+                                arr4D[firstPos, secondPos, thirdPos, i - 2] = -1; //"-1;
                             }
                             else
                             {
@@ -412,12 +414,34 @@ namespace Migration
             int dest = destination;
             destination = destination + 1; //to adjust destinations to start from 11
             float price = financial[w, 0];
-            float recovery = financial[w, (destination - 2) * 2 + 2];
-            // int exp = ((destination - 2) * 2 + 1);
-            float processingCost = financial[w, (destination - 2) * 2 + 1];
+
+            int recoveryContrl = (destination - 2) * 2 + 2;
+            float recovery;
+
+            if (recoveryContrl < 0)
+            {
+                recovery = financial[w, 6];
+            }
+            else
+            {
+                recovery = financial[w, recoveryContrl];
+            }
+            int exp = ((destination - 2) * 2 + 1);
+
+            float processingCost;
+
+            if (exp < 0)
+            {
+                processingCost = 0;
+            }
+            else
+            {
+                processingCost = financial[w, exp];
+            }
+
             int start = 0;
             start = noOfDestinations * 2 + 2;
-            float miningCost = financial[w, start + dest];
+            float miningCost = financial[w, start + dest - 3]; //! Decremeneted 3 bcs of 0 to 3 conversion
             double grade = data[x, y, z, k];
             float discountRate = financial[w, noOfDestinations * 2 + 1];
 
