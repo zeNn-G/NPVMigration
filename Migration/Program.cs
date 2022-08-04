@@ -125,6 +125,7 @@ namespace Migration
         }
         public static float[,] ReadFinancial(int financialParams, int financial_sims)
         {
+            //! Reads the financial.txt and splits data into pieces and relates them with the financial_parameters and financial_simulations variables and returns the related 2dArray
 
             string fileName = $"{asmPath}\\texts\\financial.txt";
 
@@ -132,6 +133,7 @@ namespace Migration
 
             int w = 0;
 
+            //! Reads the file line by line
             using (StreamReader streamReader = new StreamReader(fileName))
             {
                 while (streamReader.Peek() >= 0)
@@ -145,26 +147,13 @@ namespace Migration
                     for (int i = 0; i < lineArr.Length; i++)
                     {
                         financial[w, i] = float.Parse(lineArr[i]);
+
+                        //! DEBUG
                         //Console.WriteLine(financial[w, i] = float.Parse(lineArr[i]));
                     }
                     w = w + 1;
                 }
             }
-
-            //string lines = string.Empty;
-            //int w = 0;
-
-            //while (!string.IsNullOrEmpty(lines = sr.ReadLine()))
-            //{
-            //    string[] rows = lines.Split(',');
-            //    for (int i = 0; i < rows.Length; i++)
-            //    {
-            //        financial[w, i] = float.Parse(rows[i]);
-            //        //Console.Write(financial[w, i] = int.Parse(rows[i]));
-            //    }
-
-            //    w = w + 1;
-            //}
 
             return financial;
         }
@@ -172,27 +161,28 @@ namespace Migration
         {
             string fileName = $"{asmPath}\\texts\\parameter.txt";
 
-
-            Dictionary<string, string> paramValueDic = new Dictionary<string, string>(); //! Dictionary for Param - Value
+            //! Dictionary for Param - Value
+            Dictionary<string, string> paramValueDic = new Dictionary<string, string>();
 
             using (StreamReader streamReader = new StreamReader(fileName))
             {
-
-                while (streamReader.Peek() >= 0) //! Reads the file line by line
+                //! Reads the file line by line
+                while (streamReader.Peek() >= 0)
                 {
                     string line = string.Empty;
                     string[] lineArr;
 
                     line = streamReader.ReadLine();
 
-                    lineArr = line.Split('/'); //! Splits the value Param / Value --- For Example: blocks_z / 18
+                    //! Splits the value Param / Value --- For Example: blocks_z / 18
+                    lineArr = line.Split('/');
 
                     paramValueDic.Add(lineArr[0], lineArr[1]);
 
                 }
             }
-
-            foreach (KeyValuePair<string, string> kvp in paramValueDic) //! Traverses the dictionary and compares the Key and asigns the value to proper Key
+            //! Traverses the dictionary and compares the Key and asigns the value to proper Key
+            foreach (KeyValuePair<string, string> kvp in paramValueDic)
             {
                 //! DEBUG
                 //Console.WriteLine("Param is {0}, value is {1}", kvp.Key, kvp.Value);
@@ -256,20 +246,18 @@ namespace Migration
                 }
                 else if (kvp.Key.Equals("mcaf"))
                 {
-                    _ = float.TryParse(kvp.Value, out float floatFl);
+                    _ = float.TryParse(kvp.Value, out float valueFloat);
 
-                    mcaf = floatFl;
+                    mcaf = valueFloat;
                 }
             }
 
             //! DEBUG
-            Console.WriteLine("y:{0} x:{1} z:{2}\nFinancial_Sim:{3}\nFinancial_Params:{4}\nGrade_Sim:{5}\nTonnage:{6}\nUnitPrice:{7}\nUnitGrade:{8}\nNoOfDestinations:{9}", blocksY, blocksX, blocksZ, financialSims, financialParams, gradeSims, tonnage[0], unitPrice, unitGrade, noOfDestinations);
+            //Console.WriteLine("y:{0} x:{1} z:{2}\nFinancial_Sim:{3}\nFinancial_Params:{4}\nGrade_Sim:{5}\nTonnage:{6}\nUnitPrice:{7}\nUnitGrade:{8}\nNoOfDestinations:{9}", blocksY, blocksX, blocksZ, financialSims, financialParams, gradeSims, tonnage[0], unitPrice, unitGrade, noOfDestinations);
         }
         public static double[,,,] readGradeSimulations(int blocksX, int blocksY, int blocksZ, int financialParams, int financalSims, int gradeSims, string unitPrice, string unitGrade, ref int row, ref int column, ref int levels, ref float conversionFactorPrice, ref float conversionFactorGrade, ref int numberOfSimulations)
         {
-            //string fileName = $"{asmPath}\\texts\\gradesimulation.txt";
-            string fileName = @"C:\Users\trero\Desktop\Staj\C#\Migration\Migration\texts\gradesimulation.txt";
-
+            string fileName = $"{asmPath}\\texts\\gradesimulation.txt";
 
             int levels_L = 0, row_L = 0, column_L = 0;
 
@@ -415,28 +403,29 @@ namespace Migration
             destination = destination + 1; //to adjust destinations to start from 11
             float price = financial[w, 0];
 
-            int recoveryContrl = (destination - 2) * 2 + 2;
+            int recoveryIndexCheck = (destination - 2) * 2 + 2;
             float recovery;
 
-            if (recoveryContrl < 0)
+            if (recoveryIndexCheck < 0)
             {
                 recovery = financial[w, 6];
             }
             else
             {
-                recovery = financial[w, recoveryContrl];
+                recovery = financial[w, recoveryIndexCheck];
             }
-            int exp = ((destination - 2) * 2 + 1);
+
+            int indexCheck = ((destination - 2) * 2 + 1);
 
             float processingCost;
 
-            if (exp < 0)
+            if (indexCheck < 0)
             {
                 processingCost = 0;
             }
             else
             {
-                processingCost = financial[w, exp];
+                processingCost = financial[w, indexCheck];
             }
 
             int start = 0;
