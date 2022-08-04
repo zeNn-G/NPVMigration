@@ -10,48 +10,42 @@ namespace Migration
 {
     internal class Program
     {
-        public static double mcaf;
-        public static float Gram = 1;
-        public static float Kilogram = 1000;
-        public static float MetricTon = 1000000;
-        public static float LongTon = 1016000;
-
-        public static float ShortTon = 907187;
-        public static float Oz = 28.350f; //! /1000
-        public static float TOz = 31.103f; //! /1000
-        public static float Pound = 453.592f;//! /1000
-
-        public static float PPB = 0.001f; //! gram/ton
-        public static float PPM = 1; //! gram/ton
-        public static float Percentage = 10000;
-        public static int GradeUnit;
-
         public static CultureInfo ci = new CultureInfo("en-US");
 
         public static string asmPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = ci;
-            // Thread.CurrentThread.CurrentCulture.NumberFormat = ci.NumberFormat;
+
+            MigrationParams mp = new MigrationParams(0, 0, 0, 0, 0, 0, 0, new float[2], String.Empty, String.Empty, 0, 0, 0, 0, 0f, 0f);
+
+            mp.asmPath = asmPath;
+            mp.financialLocation = $"{mp.asmPath}\\texts\\financial.txt";
+            mp.parameterLocation = $"{mp.asmPath}\\texts\\parameter.txt";
+            mp.gradesimulationLocation = $"{mp.asmPath}\\texts\\gradesimulation.txt";
+
+            MasterMigration master = new MasterMigration(mp);
+
+            master.ReadParams();
 
 
-            int blocks_z = 0, blocks_x = 0, blocks_y = 0, financial_simulations = 0, financial_parameters = 0, grade_simulations = 0, noOfDestinations = 0;
-            float[] tonnage = new float[2];
+            //int blocks_z = 0, blocks_x = 0, blocks_y = 0, financial_simulations = 0, financial_parameters = 0, grade_simulations = 0, noOfDestinations = 0;
+            //[] tonnage = new float[2];
 
-            string unitPrice = String.Empty;
-            string unitGrade = String.Empty;
+            //string unitPrice = String.Empty;
+            // unitGrade = String.Empty;
 
-            readParams(ref blocks_z, ref blocks_x, ref blocks_y, ref financial_parameters, ref financial_simulations, ref grade_simulations, ref tonnage, ref unitPrice, ref unitGrade, ref noOfDestinations);
+            //(ref blocks_z, ref blocks_x, ref blocks_y, ref financial_parameters, ref financial_simulations, ref grade_simulations, ref tonnage, ref unitPrice, ref unitGrade, ref noOfDestinations);
 
-            float[,] financial = ReadFinancial(financial_parameters, grade_simulations);
+            //[,] financial = ReadFinancial(financial_parameters, grade_simulations);
 
 
-            int row = 0, column = 0, levels = 0, numberOfSimulations = 0;
-            float conversionFactorPrice = 0.0f, conversionFactorGrade = 0.0f;
+            // row = 0, column = 0, levels = 0, numberOfSimulations = 0;
+            //float conversionFactorPrice = 0.0f, conversionFactorGrade = 0.0f;
 
-            double[,,,] data = readGradeSimulations(blocks_x, blocks_y, blocks_z, financial_parameters, financial_simulations, grade_simulations, unitPrice, unitGrade, ref row, ref column, ref levels, ref conversionFactorPrice, ref conversionFactorGrade, ref numberOfSimulations);
+            //[,,,] data = readGradeSimulations(blocks_x, blocks_y, blocks_z, financial_parameters, financial_simulations, grade_simulations, unitPrice, unitGrade, ref row, ref column, ref levels, ref conversionFactorPrice, ref conversionFactorGrade, ref numberOfSimulations);
 
-            calculateRisk(levels, row, column, data, financial, tonnage, conversionFactorPrice, conversionFactorGrade, financial_simulations, numberOfSimulations, noOfDestinations);
+            //calculateRisk(levels, row, column, data, financial, tonnage, conversionFactorPrice, conversionFactorGrade, financial_simulations, numberOfSimulations, noOfDestinations);
 
         }
         public static float TranslateUnit(float scale)
