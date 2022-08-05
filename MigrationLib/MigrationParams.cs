@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Migration
 {
-    internal class MigrationParams
+    public class MigrationParams
     {
         //! CONST PROPERTIES
         public float Gram = 1;
@@ -57,6 +57,8 @@ namespace Migration
         public double mcaf;
         public int GradeUnit;
 
+        //! Results
+        public List<double> results = new List<double>();
 
         //!Constructor
         public MigrationParams(int blocks_z, int blocks_x, int blocks_y, int financialSims, int financialParams, int gradeSims, int noOfDestinations, float[] tonnage, string unitPrice, string unitGrade, int row, int column, int levels, int numberOfSimulations, float conversionFactorPrice, float conversionFactorGrade)

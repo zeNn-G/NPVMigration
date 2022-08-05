@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Migration
 {
-    internal class MasterMigration
+    public class MasterMigration
     {
         //! PROPERTIES
         private MigrationParams mp;
@@ -445,7 +445,7 @@ namespace Migration
                             }
                         }
                     }
-                    Console.WriteLine(npv);
+                    mp.results.Add(npv);
                 }
             }
         }

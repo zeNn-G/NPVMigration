@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MigrationLib\MigrationLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="texts\financial.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
