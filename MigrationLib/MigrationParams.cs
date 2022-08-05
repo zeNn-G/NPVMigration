@@ -61,9 +61,6 @@ namespace Migration
         public List<double> results = new List<double>();
 
         //!Constructor
-        public MigrationParams()
-        {
-
-        }
+        public MigrationParams() { }
     }
 }
