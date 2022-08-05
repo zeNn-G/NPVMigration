@@ -59,7 +59,7 @@ namespace Migration
                 {
                     _ = int.TryParse(kvp.Value, out int valueInt);
 
-                    mp.blocks_x = valueInt;
+                    mp.blocks_z = valueInt;
                 }
                 else if (kvp.Key.Equals("blocks_y"))
                 {
@@ -216,7 +216,6 @@ namespace Migration
 
             return UnitPriceCalc;
         }
-
         public void ReadGradeSimulations()
         {
             int levels_L = 0, row_L = 0, column_L = 0;
@@ -276,7 +275,7 @@ namespace Migration
                                 arr4D[firstPos, secondPos, thirdPos, i - 3] = value;
                             }
                             //! DEBUG
-                            //Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
+                            Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
                         }
 
                         i = i + 1;
@@ -350,6 +349,7 @@ namespace Migration
 
             mp.data = arr4D;
         }
+
     }
 
 }
