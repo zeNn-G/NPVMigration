@@ -61,24 +61,9 @@ namespace Migration
         public List<double> results = new List<double>();
 
         //!Constructor
-        public MigrationParams(int blocks_z, int blocks_x, int blocks_y, int financialSims, int financialParams, int gradeSims, int noOfDestinations, float[] tonnage, string unitPrice, string unitGrade, int row, int column, int levels, int numberOfSimulations, float conversionFactorPrice, float conversionFactorGrade)
+        public MigrationParams()
         {
-            this.blocks_z = blocks_z;
-            this.blocks_x = blocks_x;
-            this.blocks_y = blocks_y;
-            this.financialSims = financialSims;
-            this.financialParams = financialParams;
-            this.gradeSims = gradeSims;
-            this.noOfDestinations = noOfDestinations;
-            this.tonnage = tonnage;
-            this.unitPrice = unitPrice;
-            this.unitGrade = unitGrade;
-            this.row = row;
-            this.column = column;
-            this.levels = levels;
-            this.numberOfSimulations = numberOfSimulations;
-            this.conversionFactorPrice = conversionFactorPrice;
-            this.conversionFactorGrade = conversionFactorGrade;
+
         }
     }
 }
