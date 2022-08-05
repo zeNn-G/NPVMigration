@@ -275,7 +275,7 @@ namespace Migration
                                 arr4D[firstPos, secondPos, thirdPos, i - 3] = value;
                             }
                             //! DEBUG
-                            Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
+                            //Console.Write(arr4D[firstPos, secondPos, thirdPos, i - 3] + " ");
                         }
 
                         i = i + 1;
@@ -349,7 +349,106 @@ namespace Migration
 
             mp.data = arr4D;
         }
+        public float calculateNpv(double[,,,] data, float[,] financial, int z, int x, int y, int k, int w, float[] tonnage, float conversionFactorPrice, float conversionFactorGrade, int noOfDestinations)
+        {
+            float npv = 0f;
+            //float[,] financial = new float[financialParams, financial_sims];
+            // double[,,,] arr4D = new double[blocksX + 1, blocksY + 1, blocksZ + 1, financialParams + 1];
+            int period = (int)data[x, y, z, 0];
 
+            //data = int.TryParse(data,out period);
+            int destination = (int)data[x, y, z, 1];
+            int dest = destination;
+            destination = destination + 1; //to adjust destinations to start from 11
+            float price = financial[w, 0];
+
+            int recoveryIndexCheck = (destination - 2) * 2 + 2;
+            float recovery;
+
+            if (recoveryIndexCheck < 0)
+            {
+                recovery = financial[w, 6];
+            }
+            else
+            {
+                recovery = financial[w, recoveryIndexCheck];
+            }
+
+            int indexCheck = ((destination - 2) * 2 + 1);
+
+            float processingCost;
+
+            if (indexCheck < 0)
+            {
+                processingCost = 0;
+            }
+            else
+            {
+                processingCost = financial[w, indexCheck];
+            }
+
+            int start = 0;
+            start = noOfDestinations * 2 + 2;
+            float miningCost = financial[w, start + dest - 3]; //! Decremeneted 3 bcs of 0 to 3 conversion
+            double grade = data[x, y, z, k];
+            float discountRate = financial[w, noOfDestinations * 2 + 1];
+
+            double mCost = miningCost + (double)(z - 1) * mp.mcaf;
+
+
+            if (grade == -100)
+            {//air block
+                npv = 0;
+            }
+            else if (dest == -1)
+            {  //not extracted
+                npv = 0;
+            }
+            else if (destination == 1)
+            {   //waste
+                npv = -(float)mCost * tonnage[0];   //mining cost * tonnage
+                Math.Pow((1.0 + discountRate / 100.0), period); //discount rate
+            }
+            else
+            {
+                npv = (float)((float)((price * recovery * tonnage[1] * grade * conversionFactorPrice * conversionFactorGrade / 100.0) - (processingCost + mCost) * tonnage[0]) / Math.Pow((1.0 + discountRate / 100.0), period));//Di�er Maliyetlerde eklenmeli.
+            }
+
+            // if (data[z][x][y][1]==2) {
+            // npv= (financial[w][0]*financial[w][2]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][1]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
+            // if (data[z][x][y][1]==3) {
+            // npv= (financial[w][0]*financial[w][4]*tonnage*data[z][x][y][k]*conversionFactorPrice*conversionFactorGrade/100-(financial[w][3]+financial[w][6])*tonnage)/powf((1+financial[w][5]/100),data[z][x][y][0]);
+            // }
+            return npv;
+        }
+        public void CalculateRisk()
+        {
+            Console.WriteLine("======! Started Risk Calculation !======");
+
+            int x, y, z, k;
+            double npv = 0;
+
+            int w;
+
+            for (w = 0; w < mp.financialSims; w++)
+            {
+                for (k = 2; k < (mp.numberOfSimulations - 3); k++)
+                {
+                    npv = 0f;
+                    for (z = 1; z <= mp.levels; z++)
+                    {
+                        for (y = 1; y <= mp.column; y++)
+                        {
+                            for (x = 1; x <= mp.row; x++)
+                            {
+                                npv += calculateNpv(mp.data, mp.financial, z, x, y, k, w, mp.tonnage, mp.conversionFactorPrice, mp.conversionFactorGrade, mp.noOfDestinations);
+                            }
+                        }
+                    }
+                    Console.WriteLine(npv);
+                }
+            }
+        }
     }
-
 }
+

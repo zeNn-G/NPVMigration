@@ -29,6 +29,7 @@ namespace Migration
             master.ReadParams();
             master.ReadFinancial();
             master.ReadGradeSimulations();
+            master.CalculateRisk();
 
 
 
